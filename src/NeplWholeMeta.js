@@ -1,13 +1,13 @@
 var fs = require('fs');
 
-function NeplMeta(metaObj){
+function NeplWholeMeta(metaObj){
     if( arguments.length === 0 ){
         
     }
     else{
         // initialize meta file
         if( metaObj.volumeName === undefined ){
-            throw new Error('NeplMeta: Invalid meta argument');
+            throw new Error('NeplWholeMeta: Invalid meta argument');
         }
         
         this.volumeName    = metaObj.volumeName;     // The name of this transaction
@@ -15,26 +15,29 @@ function NeplMeta(metaObj){
         this.lastVol       = 0;                      // Last volume file number
         this.lastVolTxnCnt = 0;                      // Last transaction of target log file
         this.lastVolByteCnt = 0;                     // Last byte offset of target log file
+        this.firstUnreadVol = -1;                    // The first volume file that is unread
+        this.firstUnreadTxn = -1;                    // The first unread transaction number
+        this.oldestVolToKeep = 0;                    // The first number of kept volume file
     }
 }
 
-NeplMeta.prototype.stringBuffer = function(){
+NeplWholeMeta.prototype.stringBuffer = function(){
     var str = '';
     str += '=volumeName=' + this.volumeName + '\n'; 
     str += '=lastVol=' + this.lastVol + '\n';
     str += '=lastVolTxnCnt=' + this.lastVolTxnCnt + '\n';
     str += '=lastVolByteCnt=' + this.lastVolByteCnt + '\n';
-    str += '=lastTimeStamp=' + this.lastTimeStamp + '\n';
-    str += '=byteOffset=' + this.byteOffset + '\n';
-    str += '=recordNum=' + this.recordNum + '\n';
+    str += '=firstUnreadVol=' + this.firstUnreadVol + '\n';
+    str += '=firstUnreadTxn=' + this.firstUnreadTxn + '\n';
+    str += '=oldestVolToKeep=' + this.oldestVolToKeep + '\n';
     str += '=end=\n';
     return new Buffer(str);
 }
 
 
-NeplMeta.prototype.parse = function(metaFile){
+NeplWholeMeta.prototype.parse = function(metaFile){
     fs.readFile(metaFile, function(err, data){
-        if(err) throw new Error('NeplMeta: Can\'t parse meta file');
+        if(err) throw new Error('NeplMeta: Cannot parse meta file');
         console.log(data.toString());
     });
 }
@@ -43,6 +46,5 @@ NeplMeta.prototype.parse = function(metaFile){
 
 
 
-
-module.exports = NeplMeta;
+module.exports = NeplWholeMeta;
 

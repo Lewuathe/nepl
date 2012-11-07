@@ -1,5 +1,10 @@
-=VolumeName=txReader
-=LastTimeStamp=1352212292835
-=ByteOffset=0
-=RecordNum=0
-=End=
+=volumeName=txReader
+=lastVol=0
+=lastVolTxnCnt=0
+=lastVolByteCnt=0
+=firstUnreadVol=-1
+=firstUnreadTxn=-1
+=oldestVolToKeep=0
+=end=
+=readerId=d57f4bd74fee4f7b01020c608950d719e05ed2bb:=lastVol=0:=lastVolTxnCnt=0:=lastVolByteCnt=0
+=readerId=d57f4bd74fee4f7b01020c608950d719e05ed2bb:=lastVol=0:=lastVolTxnCnt=0:=lastVolByteCnt=0

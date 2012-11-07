@@ -1,6 +1,7 @@
 var net = require('net');
 var fs = require('fs');
-var NeplMeta = require('./NeplMeta');
+var NeplWholeMeta = require('./NeplWholeMeta');
+var NeplOwnMeta = require('./NeplOwnMeta.js');
 
 function NeplReader(options){
     /* Initialization of volume file
@@ -11,7 +12,7 @@ function NeplReader(options){
     function initVolume(volumeFd){
         var initVolume = new Buffer('init volume\n');
         fs.write(volumeFd, initVolume, 0, initVolume.length, 0, function(err, written, buffer){
-            if(err) throw new Error('NeplReader: Can\'t initialize volume file');
+            if(err) throw new Error('NeplReader: Cannot initialize volume file');
         });
     }
 
@@ -23,35 +24,36 @@ function NeplReader(options){
      *  ByteOffset=(The offser of last read record)
      *  RecordNum=(The total record count)
      *
-     *  === example ===
-     *
-     *  VolumeName=myvolume
-     *  LastTimeStamp=1352176628158
-     *  ByteOffset=123341
-     *  RecordNum=12
-     *
      */ 
 
     function initMeta(metaFd, name){
         var options = {};
         options.volumeName = name;
-        var meta = new NeplMeta(options);
-        fs.write(metaFd, meta.stringBuffer(), 0, meta.stringBuffer().length,
+        var wholeMt = new NeplWholeMeta(options);
+        fs.write(metaFd, wholeMt.stringBuffer(), 0, wholeMt.stringBuffer().length,
                  0, function(err, written, buffer){
-                     if(err) throw new Error('NeplReader: Can\'t initialize meta file');
+                     if(err) throw new Error('NeplReader: Cannot initialize meta file');
         });
     }
     function initLogFiles(volume, meta, name){
         fs.exists(volume, function(exists){
             fs.open(volume, 'w+', function(err, fd){
-                if(err) throw new Error('NeplReader: Can\'t find available volume file');
+                if(err) throw new Error('NeplReader: Cannot find available volume file');
             });
         });
         fs.exists(meta, function(exists){
             if(!exists){
                 fs.open(meta, 'w+', function(err, fd){
-                    if(err) throw new Error('NeplReader: Can\'t find available meta file');
+                    if(err) throw new Error('NeplReader: Cannot find available meta file');
                     initMeta(fd, name);
+                });
+            }
+            else{
+                var options = {};
+                options.volumeName = name;
+                var ownMt = new NeplOwnMeta(options);
+                fs.appendFile(meta, ownMt.stringBuffer(), function(err){
+                    if(err) throw new Error('NeplReader: Cannot write own meta data');
                 });
             }
         });
@@ -75,7 +77,7 @@ function NeplReader(options){
 
 
 NeplReader.prototype.run = function(){
-    var meta = new NeplMeta();
+    var meta = new NeplWholeMeta();
     var volume = this.volume;
     var metaFile = this.meta;
     process.nextTick(function(){
@@ -103,8 +105,8 @@ var options = {
     ownhost : 'localhost',
     targethost : 'localhost',
     name : 'txReader',
-    volume : __dirname + '/txvol',
-    meta   : __dirname + '/meta',
+    volume : '/Users/sasakiumi/MyWorks/nepl/txvol',
+    meta   : '/Users/sasakiumi/MyWorks/nepl/meta',
     consumer : cons
 };
 
