@@ -1,5 +1,16 @@
 var fs = require('fs');
 
+var wVOLUME_NAME        = 0;
+var wLAST_VOL           = 1;
+var wLAST_VOL_TXN_CNT   = 2;
+var wLAST_VOL_BYTE_CNT  = 3;
+var wFIRST_UNREAD_VOL   = 4;
+var wFIRST_UNREAD_TXN   = 5;
+var wOLDEST_VOL_TO_KEEP = 6;
+var wPROPNUM            = 7;
+
+
+
 function NeplWholeMeta(metaObj){
     if( arguments.length === 0 ){
         
@@ -23,28 +34,36 @@ function NeplWholeMeta(metaObj){
 
 NeplWholeMeta.prototype.stringBuffer = function(){
     var str = '';
-    str += '=volumeName=' + this.volumeName + '\n'; 
-    str += '=lastVol=' + this.lastVol + '\n';
-    str += '=lastVolTxnCnt=' + this.lastVolTxnCnt + '\n';
-    str += '=lastVolByteCnt=' + this.lastVolByteCnt + '\n';
-    str += '=firstUnreadVol=' + this.firstUnreadVol + '\n';
-    str += '=firstUnreadTxn=' + this.firstUnreadTxn + '\n';
-    str += '=oldestVolToKeep=' + this.oldestVolToKeep + '\n';
-    str += '=end=\n';
+    str += 'volumeName=' + this.volumeName + '\n'; 
+    str += 'lastVol=' + this.lastVol + '\n';
+    str += 'lastVolTxnCnt=' + this.lastVolTxnCnt + '\n';
+    str += 'lastVolByteCnt=' + this.lastVolByteCnt + '\n';
+    str += 'firstUnreadVol=' + this.firstUnreadVol + '\n';
+    str += 'firstUnreadTxn=' + this.firstUnreadTxn + '\n';
+    str += 'oldestVolToKeep=' + this.oldestVolToKeep + '\n';
+    str += '\n';
     return new Buffer(str);
 }
 
 
+
 NeplWholeMeta.prototype.parse = function(metaFile){
-    fs.readFile(metaFile, function(err, data){
-        if(err) throw new Error('NeplMeta: Cannot parse meta file');
-        console.log(data.toString());
-    });
+    var self = this;
+    var data = fs.readFileSync(metaFile);
+    var wholeMtData = data.toString().split('\n');
+    NeplWholeMeta.setParams(self, wholeMtData);
 }
 
 
-
+NeplWholeMeta.setParams = function(self, mtData){
+    self.volumeName       = mtData[wVOLUME_NAME].split('=')[1];
+    self.lastVol          = mtData[wLAST_VOL].split('=')[1];
+    self.lastVolTxnCnt    = mtData[wLAST_VOL_TXN_CNT].split('=')[1];
+    self.lastVolByteCnt   = mtData[wLAST_VOL_BYTE_CNT].split('=')[1];
+    self.firstUnreadVol   = mtData[wFIRST_UNREAD_VOL].split('=')[1];
+    self.firstUnreadTxn   = mtData[wFIRST_UNREAD_TXN].split('=')[1];
+    self.oldestVolToKeep  = mtData[wOLDEST_VOL_TO_KEEP].split('=')[1];
+}
 
 
 module.exports = NeplWholeMeta;
-

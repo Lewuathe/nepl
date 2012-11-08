@@ -21,12 +21,22 @@ function NeplOwnMeta(metaObj){
 
 NeplOwnMeta.prototype.stringBuffer = function(){
     var str = '';
-    str += '=readerId=' + this.readerId;
+    str += 'readerId=' + this.readerId;
     str += ':=lastVol=' + this.lastVol;
     str += ':=lastVolTxnCnt=' + this.lastVolTxnCnt;
     str += ':=lastVolByteCnt=' + this.lastVolByteCnt;
     str += '\n';
     return new Buffer(str);
 }
+
+NeplOwnMeta.prototype.parse = function(metaFile){
+    var self = this;
+    var data = fs.readFileSync(metaFile);
+}
+
+NeplOwnMeta.setParams = function(self, mtData){
+    
+}
+
 
 module.exports = NeplOwnMeta;
