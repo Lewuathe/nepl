@@ -1,15 +1,12 @@
 var net = require('net');
 var fs = require('fs');
 var NeplWholeMeta = require('./NeplWholeMeta');
-var NeplOwnMeta = require('./NeplOwnMeta.js');
 
 function NeplReader(options){
     var self = this;
 
     this.volume  = options.volume     ? options.volume     : __dirname + 'txvol';
     this.meta    = options.meta       ? options.meta       : __dirname + 'meta';
-    this.port    = options.ownport    ? options.ownport    : 8081;
-    this.host    = options.ownhost    ? options.ownhost    : 'localhost';
     this.name    = options.name       ? options.name       : 'nepl_reader';
 
     if( !options.consumer || typeof options.consumer !== 'function'){
@@ -50,8 +47,7 @@ NeplReader.initVolume = function(self, volumeFd){
 
 NeplReader.initMeta = function(self, metaFd, name){
     var wholeMt = self.wholeMeta;
-    var ownMt   = self.ownMeta;
-    var metaStr = new Buffer(wholeMt.stringBuffer() + ownMt.stringBuffer());
+    var metaStr = new Buffer(wholeMt.stringBuffer() + wholeMt.ownMetaStringBuffer());
     var metaStrLen = metaStr.length;
     fs.write(metaFd, metaStr, 0, metaStrLen, 0, function(err, written, buffer){
         if(err) throw new Error('NeplReader: Cannot initialize meta file');
@@ -71,24 +67,30 @@ NeplReader.initLogFiles = function(self, volume, meta, name){
         var options = {};
         options.volumeName = name;
         var wholeMt = new NeplWholeMeta(options);
-        var ownMt = new NeplOwnMeta(options);
         self.wholeMeta = wholeMt;
-        self.ownMeta = ownMt;
+
 
         if(!exists){
             // If there are no meta file, add whole meta data and own meta data.
             fs.open(meta, 'w+', function(err, fd){
                 if(err) throw new Error('NeplReader: Cannot find available meta file');
                 NeplReader.initMeta(self, fd, name);
-                // この段階ではwholeMetaは完成している
+                self.wholeMeta.parse(self.meta);
+                // In this timing, wholemeta is completed
+                fs.watchFile(self.volume, function(curr, prev){
+                    console.log(prev);
+                });
             });
         }
         else{
             // Only add own meta data
-            fs.appendFile(meta, ownMt.stringBuffer(), function(err){
+            fs.appendFile(meta, self.wholeMeta.ownMetaStringBuffer(), function(err){
                 if(err) throw new Error('NeplReader: Cannot write own meta data');
                 self.wholeMeta.parse(self.meta);
-                // この段階ではwholeMetaは完成している
+                // In this timing, wholemeta is completed
+                fs.watchFile(self.volume, function(curr, prev){
+                    console.log(prev);
+                });
             });
         }
 
@@ -101,7 +103,9 @@ NeplReader.prototype.run = function(){
 
 }
 
-    
+
+module.exports = NeplReader;
+
 function cons(data){
     console.log(data);
 }
@@ -120,4 +124,4 @@ var options = {
 var nr = new NeplReader(options);
 
 //nr.run();
-    
+  
