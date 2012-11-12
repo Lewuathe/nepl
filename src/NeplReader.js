@@ -66,19 +66,24 @@ NeplReader.initLogFiles = function(self, volume, meta, name){
     fs.exists(meta, function(exists){
         var options = {};
         options.volumeName = name;
+        options.metaFile = __dirname + '/meta';
         var wholeMt = new NeplWholeMeta(options);
         self.wholeMeta = wholeMt;
 
 
         if(!exists){
             // If there are no meta file, add whole meta data and own meta data.
-            fs.open(meta, 'w+', function(err, fd){
+            fs.open(meta, 'wx', function(err, fd){
                 if(err) throw new Error('NeplReader: Cannot find available meta file');
+                // Init meta
                 NeplReader.initMeta(self, fd, name);
+                // Parse meta
                 self.wholeMeta.parse(self.meta);
                 // In this timing, wholemeta is completed
+                console.log('Before watch', self.meta);
                 fs.watchFile(self.volume, function(curr, prev){
-                    console.log(prev);
+                    console.log("update");
+                    self.wholeMeta.updateMeta(self.meta);
                 });
             });
         }
@@ -88,8 +93,10 @@ NeplReader.initLogFiles = function(self, volume, meta, name){
                 if(err) throw new Error('NeplReader: Cannot write own meta data');
                 self.wholeMeta.parse(self.meta);
                 // In this timing, wholemeta is completed
+                console.log('Before watch', self.meta);
                 fs.watchFile(self.volume, function(curr, prev){
-                    console.log(prev);
+                    console.log('update');
+                    self.wholeMeta.updateMeta(self.meta);
                 });
             });
         }

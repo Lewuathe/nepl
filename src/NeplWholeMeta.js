@@ -19,7 +19,9 @@ function NeplWholeMeta(metaObj){
         if( metaObj.volumeName === undefined ){
             throw new Error('NeplWholeMeta: Invalid meta argument');
         }
-        
+
+        this.metaFile = metaObj.metaFile;
+
         this.volumeName    = metaObj.volumeName;     // The name of this transaction
         this.lastTimeStamp = new Date().getTime();   // Timestamp of last modified time
         this.lastVol       = 0;                      // Last volume file number
@@ -47,6 +49,15 @@ NeplWholeMeta.prototype.stringBuffer = function(){
 }
 
 
+NeplWholeMeta.prototype.updateMeta = function(metaFile){
+    var self = this;
+    this.lastVol = 190;
+    var metaStr = new Buffer(this.stringBuffer() + this.ownMetaStringBuffer());
+    var metaStrLen = metaStr.length;
+    fs.writeFileSync(metaFile, metaStr);
+    self.parse(metaFile);
+}
+
 // Return own target meta string
 NeplWholeMeta.prototype.ownMetaStringBuffer = function(){
     var self = this;
@@ -66,6 +77,8 @@ NeplWholeMeta.prototype.parse = function(metaFile){
 }
 
 
+
+
 NeplWholeMeta.setParams = function(self, mtData){
     var wholeMetaSize = mtData.length;
     self.volumeName       = mtData[wVOLUME_NAME].split('=')[1];
@@ -79,6 +92,4 @@ NeplWholeMeta.setParams = function(self, mtData){
         NeplOwnMeta.setParams(self.ownMetas, self.volumeName, mtData[i]);
     }
 }
-
-
 module.exports = NeplWholeMeta;
