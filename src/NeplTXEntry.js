@@ -11,7 +11,7 @@ var NeplTX = require('./NeplTX.js');
 
 function NeplTXEntry(options){
     this.ntxs = [];
-    if( !options.volume || typeof options.volume !== 'string' ){
+    if( !options.volumeName || typeof options.volumeName !== 'string' ){
         throw new Error('NeplTXEntry: Invalid options');
     }
     else{
@@ -50,6 +50,11 @@ NeplTXEntry.prototype.readTXs = function(volume){
     }
 }
 
+
+
+module.exports = NeplTXEntry;
+
+/*
 var options = { volume : __dirname + '/txvol' };
 
 var nEntry = new NeplTXEntry(options);
@@ -58,4 +63,5 @@ var tx2 = { context : 'ctx2', payload : 'pay2' };
 nEntry.addTX(tx1);
 nEntry.addTX(tx2);
 nEntry.writeTXs(__dirname + '/txvol');
+*/
 

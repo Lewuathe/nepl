@@ -49,9 +49,10 @@ NeplWholeMeta.prototype.stringBuffer = function(){
 }
 
 
+
+// Update meta file
 NeplWholeMeta.prototype.updateMeta = function(metaFile){
     var self = this;
-    this.lastVol = 190;
     var metaStr = new Buffer(this.stringBuffer() + this.ownMetaStringBuffer());
     var metaStrLen = metaStr.length;
     fs.writeFileSync(metaFile, metaStr);

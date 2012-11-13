@@ -43,7 +43,9 @@ NeplOwnMeta.setParams = function(ownMt, volumeName, mtData){
     var factors = mtData.split(':');
     var readerId = factors[oREADER_ID].split('=')[1];
     var lastVol = factors[oLAST_VOL].split('=')[1];
+    // Unread transaction
     var lastVolTxnCnt = factors[oLAST_VOL_TXN_CNT].split('=')[1];
+    // Unread bytes
     var lastVolByteCnt = factors[oLAST_VOL_BYT_CNT].split('=')[1];
 
     // Step2. Creating added meta object
