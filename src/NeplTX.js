@@ -7,28 +7,29 @@
  */
 
 function NeplTX(txObj){
-    if( !txObj.context || typeof txObj.context !== 'string' ){
+    if( !txObj.context || typeof txObj.context !== 'object' ){
         throw new Error('NeplTX: Invalid context in options');
     }
     else{
         this.context = txObj.context;
     }
 
-    if( !txObj.payload || typeof txObj.payload !== 'string' ){
+    if( !txObj.payload || typeof txObj.payload !== 'object' ){
         throw new Error('NeplTX: Invalid payload in options');
     }
     else{
         this.payload = txObj.payload;
     }
 
-    this.ntxString = JSON.stringify(txObj);
-    this.ntxBuffer = new Buffer(this.ntxString);
+    this.txString = JSON.stringify(txObj);
+    this.txBuffer = new Buffer(this.txString);
 }
 
 
 NeplTX.prototype.toString = function(){
-    return this.ntxString;
+    return this.txString;
 }
+
 
 module.exports = NeplTX;
 //module.exports.NeplTX = NeplTX;

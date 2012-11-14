@@ -10,12 +10,18 @@ var fs = require('fs');
 var NeplTX = require('./NeplTX.js');
 
 function NeplTXEntry(options){
-    this.ntxs = [];
-    if( !options.volumeName || typeof options.volumeName !== 'string' ){
-        throw new Error('NeplTXEntry: Invalid options');
-    }
-    else{
-        this.volume = options.volume;
+    this.txs = [];
+}
+
+NeplTXEntry.prototype.parse = function(txsString){
+    var self = this;
+    var txStrings = txsString.split('\n');
+    for( var i = 0 ; i < txStrings.length ; i++ ){
+        var txObject = JSON.parse(txStrings[i]);
+        var options = {};
+        options.context = txObject.context;
+        options.payload = txObject.payload;
+        self.txs.push(new NeplTX(options));
     }
 }
 

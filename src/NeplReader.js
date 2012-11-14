@@ -31,6 +31,9 @@ NeplReader.prototype.doConsumer = function(curr,prev){
     var tx = new Buffer(writtenByte);
     fs.open(self.volume, 'r', function(err, fd){
         var len = fs.readSync(fd, tx, 0, writtenByte, previousByte);
+        var txEntry = new NeplTXEntry();
+        txEntry.parse(tx.toString());
+        self.consumer(txEntry);
         self.wholeMeta.ownMetas[volumeName]['lastVolByteCnt'] = previousByte + len;
     });
 }
@@ -127,8 +130,10 @@ NeplReader.prototype.run = function(){
 
 module.exports = NeplReader;
 
-function cons(data){
-    console.log(data);
+function cons(txEntry){
+    for( var i = 0 ; i < txEntry.txs.length ; i++ ){
+        console.log('txString:', txEntry.txs[i].txString);
+    }
 }
 
 var options = {
