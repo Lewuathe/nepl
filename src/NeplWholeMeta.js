@@ -22,8 +22,9 @@ function NeplWholeMeta(metaObj){
 
         this.metaFile = metaObj.metaFile;
 
-        this.volumeName    = metaObj.volumeName;     // The name of this transaction
-        this.lastTimeStamp = new Date().getTime();   // Timestamp of last modified time
+        var d = new Date().getTime();
+        this.volumeName    = 'meta_' + d;     // The name of this transaction
+        this.lastTimeStamp = d;   // Timestamp of last modified time
         this.lastVol       = 0;                      // Last volume file number
         this.lastVolTxnCnt = 0;                      // Last transaction of target log file
         this.lastVolByteCnt = 0;                     // Last byte offset of target log file
@@ -32,7 +33,7 @@ function NeplWholeMeta(metaObj){
         this.oldestVolToKeep = 0;                    // The first number of kept volume file
         
         this.ownMetas = {};
-        this.ownMetas[this.volumeName] = new NeplOwnMeta({ volumeName : this.volumeName });
+        this.ownMetas[metaObj.volumeName] = new NeplOwnMeta({ volumeName : metaObj.volumeName });
     }
 }
 
@@ -89,8 +90,9 @@ NeplWholeMeta.setParams = function(self, mtData){
     self.firstUnreadVol   = mtData[wFIRST_UNREAD_VOL].split('=')[1];
     self.firstUnreadTxn   = mtData[wFIRST_UNREAD_TXN].split('=')[1];
     self.oldestVolToKeep  = mtData[wOLDEST_VOL_TO_KEEP].split('=')[1];
+    self.ownMetas = {};
     for( var i = oMETA_START ; i < wholeMetaSize-1 ; i++ ){
-        NeplOwnMeta.setParams(self.ownMetas, self.volumeName, mtData[i]);
+        NeplOwnMeta.setParams(self.ownMetas, mtData[i]);
     }
 }
 module.exports = NeplWholeMeta;

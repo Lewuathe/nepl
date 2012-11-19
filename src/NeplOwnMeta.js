@@ -38,7 +38,7 @@ NeplOwnMeta.prototype.stringBuffer = function(){
 }
 
 
-NeplOwnMeta.setParams = function(ownMt, volumeName, mtData){
+NeplOwnMeta.setParams = function(ownMt, mtData){
     // Step1. Parsing
     var factors = mtData.split(':');
     var readerId = factors[oREADER_ID].split('=')[1];
@@ -49,11 +49,10 @@ NeplOwnMeta.setParams = function(ownMt, volumeName, mtData){
     var lastVolByteCnt = factors[oLAST_VOL_BYT_CNT].split('=')[1];
 
     // Step2. Creating added meta object
-    var addedOwnMt = new NeplOwnMeta({ volumeName : volumeName });
+    var addedOwnMt = new NeplOwnMeta({ volumeName : readerId });
     addedOwnMt.lastVol = lastVol;
     addedOwnMt.lastVolTxnCnt = lastVolTxnCnt;
     addedOwnMt.lastVolByteCnt = lastVolByteCnt;
-
     // Step3. Add
     ownMt[readerId] = addedOwnMt;
 }

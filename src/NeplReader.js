@@ -34,9 +34,13 @@ NeplReader.prototype.doConsumer = function(curr,prev){
         var txEntry = new NeplTXEntry();
         txEntry.parse(tx.toString());
         self.consumer(txEntry);
-        self.wholeMeta.ownMetas[volumeName]['lastVolByteCnt'] = previousByte + len;
+        self.wholeMeta.ownMetas[self.name]['lastVolTxnCnt']++;
+        var byteSum = parseInt(self.wholeMeta.ownMetas[self.name]['lastVolByteCnt']) + len;
+        self.wholeMeta.ownMetas[self.name]['lastVolByteCnt'] = byteSum + '';
+        self.wholeMeta.updateMeta(self.meta);
     });
 }
+
 
 
 
@@ -105,16 +109,25 @@ NeplReader.prototype.initLogFiles = function(self, volume, meta, name){
         }
         else{
             // Only add own meta data
-            fs.appendFile(meta, self.wholeMeta.ownMetaStringBuffer(), function(err){
-                if(err) throw new Error('NeplReader: Cannot write own meta data');
-                self.wholeMeta.parse(self.meta);
-                // In this timing, wholemeta is completed
-
+            self.wholeMeta.parse(self.meta);
+            if( self.wholeMeta.ownMetas[name] ){
                 fs.watchFile(self.volume, function(curr, prev){
                     self.doConsumer(curr, prev);
                     self.wholeMeta.updateMeta(self.meta);
                 });
-            });
+            }
+            else{
+                fs.appendFile(meta, self.wholeMeta.ownMetaStringBuffer(), function(err){
+                    if(err) throw new Error('NeplReader: Cannot write own meta data');
+                    self.wholeMeta.parse(self.meta);
+                    // In this timing, wholemeta is completed
+                    
+                    fs.watchFile(self.volume, function(curr, prev){
+                        self.doConsumer(curr, prev);
+                        self.wholeMeta.updateMeta(self.meta);
+                    });
+                });
+            }
         }
 
     });
