@@ -1,0 +1,8 @@
+volumeName=meta_1353325193448
+lastVol=0
+lastVolTxnCnt=0
+lastVolByteCnt=0
+firstUnreadVol=-1
+firstUnreadTxn=-1
+oldestVolToKeep=0
+readerId=txReader:lastVol=0:lastVolTxnCnt=3:lastVolByteCnt=420
