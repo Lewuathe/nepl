@@ -134,8 +134,6 @@ NeplReader.prototype.initLogFiles = function(self, volume, meta, name){
 }
 
 
-
-
 NeplReader.prototype.run = function(){
 
 }
@@ -143,24 +141,3 @@ NeplReader.prototype.run = function(){
 
 module.exports = NeplReader;
 
-function cons(txEntry){
-    for( var i = 0 ; i < txEntry.txs.length ; i++ ){
-        console.log('txString:', txEntry.txs[i].txString);
-    }
-}
-
-var options = {
-    ownport : 8081,
-    targetport : 8082,
-    ownhost : 'localhost',
-    targethost : 'localhost',
-    name : 'txReader',
-    volume : '/Users/sasakiumi/MyWorks/nepl/sampleTx/txvol',
-    meta   : '/Users/sasakiumi/MyWorks/nepl/sampleTx/meta',
-    consumer : cons
-};
-
-var nr = new NeplReader(options);
-
-//nr.run();
-  
