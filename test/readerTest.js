@@ -1,4 +1,4 @@
-var nepl = require('nepl');
+var nepl = require('../src');
 
 
 function cons(txEntry){

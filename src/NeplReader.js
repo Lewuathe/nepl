@@ -79,9 +79,11 @@ NeplReader.initMeta = function(self, metaFd, name){
 
 NeplReader.prototype.initLogFiles = function(self, volume, meta, name){
     fs.exists(volume, function(exists){
-        fs.open(volume, 'w+', function(err, fd){
-            if(err) throw new Error('NeplReader: Cannot find available volume file');
-        });
+        if(!exists){
+            fs.open(volume, 'w+', function(err, fd){
+                if(err) throw new Error('NeplReader: Cannot find available volume file');
+            });
+        }
     });
 
     fs.exists(meta, function(exists){
@@ -132,8 +134,6 @@ NeplReader.prototype.initLogFiles = function(self, volume, meta, name){
 
     });
 }
-
-
 
 
 NeplReader.prototype.run = function(){
