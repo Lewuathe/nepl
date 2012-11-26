@@ -1,4 +1,4 @@
-var nepl = require('nepl');
+var nepl = require('../src');
 
 var payload = {};
 payload['data1'] = 'takeshi';
