@@ -1,9 +1,0 @@
-{
-    "name" : "nepl",
-    "version" : "1.0.1",
-    "main" : "index.js",
-    "author" : "lewuathe",
-    "description" : "nepl supports asynchronous and reliable connection protocol",
-    "repository" : { "type" : "git" , 
-                     "url" : "https://github.com/Lewuathe/nepl.git" }
-}
