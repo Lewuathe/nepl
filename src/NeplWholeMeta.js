@@ -38,6 +38,7 @@ function NeplWholeMeta(metaObj){
 }
 
 NeplWholeMeta.prototype.stringBuffer = function(){
+    var self = this;
     var str = '';
     str += 'volumeName=' + this.volumeName + '\n'; 
     str += 'lastVol=' + this.lastVol + '\n';
@@ -46,6 +47,7 @@ NeplWholeMeta.prototype.stringBuffer = function(){
     str += 'firstUnreadVol=' + this.firstUnreadVol + '\n';
     str += 'firstUnreadTxn=' + this.firstUnreadTxn + '\n';
     str += 'oldestVolToKeep=' + this.oldestVolToKeep + '\n';
+    str += self.ownMetaStringBuffer().toString();
     return new Buffer(str);
 }
 
@@ -54,7 +56,7 @@ NeplWholeMeta.prototype.stringBuffer = function(){
 // Update meta file
 NeplWholeMeta.prototype.updateMeta = function(metaFile){
     var self = this;
-    var metaStr = new Buffer(this.stringBuffer() + this.ownMetaStringBuffer());
+    var metaStr = new Buffer(this.stringBuffer());
     var metaStrLen = metaStr.length;
     fs.writeFileSync(metaFile, metaStr);
     self.parse(metaFile);
@@ -69,6 +71,14 @@ NeplWholeMeta.prototype.ownMetaStringBuffer = function(){
     }
     return new Buffer(str);
 }
+
+NeplWholeMeta.prototype.appendOwnMeta = function(readerId){
+    var self = this;
+    var metaObj = {};
+    metaObj.volumeName = readerId;
+    self.ownMetas[readerId] = new NeplOwnMeta(metaObj);
+}
+    
 
 // parsing and create whole meta object
 NeplWholeMeta.prototype.parse = function(metaFile){

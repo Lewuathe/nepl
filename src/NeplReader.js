@@ -29,6 +29,7 @@ NeplReader.prototype.doConsumer = function(curr,prev){
     var previousByte = prev.size;
     var writtenByte = currentByte - previousByte - 1;
     var tx = new Buffer(writtenByte);
+    self.wholeMeta.parse(self.meta);
     fs.open(self.volume, 'r', function(err, fd){
         var len = fs.readSync(fd, tx, 0, writtenByte, previousByte);
         var txEntry = new NeplTXEntry();
@@ -68,7 +69,7 @@ NeplReader.initVolume = function(self, volumeFd){
 
 NeplReader.initMeta = function(self, metaFd, name){
     var wholeMt = self.wholeMeta;
-    var metaStr = new Buffer(wholeMt.stringBuffer() + wholeMt.ownMetaStringBuffer());
+    var metaStr = new Buffer(wholeMt.stringBuffer());
     var metaStrLen = metaStr.length;
     fs.write(metaFd, metaStr, 0, metaStrLen, 0, function(err, written, buffer){
         if(err) throw new Error('NeplReader: Cannot initialize meta file');
@@ -93,7 +94,6 @@ NeplReader.prototype.initLogFiles = function(self, volume, meta, name){
         var wholeMt = new NeplWholeMeta(options);
         self.wholeMeta = wholeMt;
         self.txEntry = new NeplTXEntry(options);
-
         if(!exists){
             // If there are no meta file, add whole meta data and own meta data.
             fs.open(meta, 'wx', function(err, fd){
@@ -115,15 +115,14 @@ NeplReader.prototype.initLogFiles = function(self, volume, meta, name){
             if( self.wholeMeta.ownMetas[name] ){
                 fs.watchFile(self.volume, function(curr, prev){
                     self.doConsumer(curr, prev);
-                    self.wholeMeta.updateMeta(self.meta);
                 });
             }
             else{
-                fs.appendFile(meta, self.wholeMeta.ownMetaStringBuffer(), function(err){
+                self.wholeMeta.appendOwnMeta(name);
+                fs.writeFile(meta, self.wholeMeta.stringBuffer(), function(err){
                     if(err) throw new Error('NeplReader: Cannot write own meta data');
                     self.wholeMeta.parse(self.meta);
                     // In this timing, wholemeta is completed
-                    
                     fs.watchFile(self.volume, function(curr, prev){
                         self.doConsumer(curr, prev);
                         self.wholeMeta.updateMeta(self.meta);
