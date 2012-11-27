@@ -1,6 +1,6 @@
 {
     "name" : "nepl",
-    "version" : "1.0.2",
+    "version" : "1.0.3",
     "main" : "index.js",
     "author" : "lewuathe",
     "description" : "nepl supports asynchronous and reliable connection protocol",
