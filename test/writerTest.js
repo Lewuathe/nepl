@@ -6,4 +6,4 @@ payload['data2'] = 'nobita';
 
 var tx = new nepl.NeplTX();
 tx.setPayload(payload);
-tx.writeToVol(__dirname + '/sampleTx/txvol');
+tx.writeToVol(__dirname + '/sampleTx/vol00001');

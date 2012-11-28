@@ -8,8 +8,7 @@ function cons(txEntry){
 
 var options = {
     name : 'txReader2',
-    volume : '/Users/sasakiumi/MyWorks/nepl/test/sampleTX/txvol',
-    meta : '/Users/sasakiumi/MyWorks/nepl/test/sampleTX/meta',
+    targetVolume : '/Users/sasakiumi/MyWorks/nepl/test/sampleTX',
     consumer : cons
 };
 

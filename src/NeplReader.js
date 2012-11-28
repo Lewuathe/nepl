@@ -1,13 +1,20 @@
 var net = require('net');
 var fs = require('fs');
+var path = require('path');
 var NeplWholeMeta = require('./NeplWholeMeta');
 var NeplTXEntry = require('./NeplTXEntry.js');
 
+
+var VOLCOUNT_LENGTH = 5;
+var MAX_VOL_SIZE = 100000000;
+
 function NeplReader(options){
     var self = this;
+    
 
-    this.volume  = options.volume     ? options.volume     : __dirname + 'txvol';
-    this.meta    = options.meta       ? options.meta       : __dirname + 'meta';
+    var txDir = options.targetVolume;
+    this.volume  = txDir + '/vol00001';
+    this.meta    = txDir + '/meta';
     this.name    = options.name       ? options.name       : 'nepl_reader';
 
     if( !options.consumer || typeof options.consumer !== 'function'){
@@ -39,8 +46,14 @@ NeplReader.prototype.doConsumer = function(curr,prev){
         var byteSum = parseInt(self.wholeMeta.ownMetas[self.name]['lastVolByteCnt']) + len;
         self.wholeMeta.ownMetas[self.name]['lastVolByteCnt'] = byteSum + '';
         self.wholeMeta.updateMeta(self.meta);
+                    // If transaction file is over 1MB, log rotate
+        fs.stat(self.volume, function(err, stats){
+            if( stats.size > MAX_VOL_SIZE ) {
+                NeplReader.logRotate(self.volume);
+            }
+        });
     });
-}
+};
 
 
 
@@ -75,7 +88,27 @@ NeplReader.initMeta = function(self, metaFd, name){
         if(err) throw new Error('NeplReader: Cannot initialize meta file');
         self.wholeMeta.parse(self.meta);
     });
-}
+};
+
+NeplReader.logRotate = function(currentVolume){
+    var dirname = path.dirname(currentVolume);
+    var basename = path.basename(currentVolume);
+    var nextBasename = NeplReader.incrementVol(basename);
+    fs.open(dirname + '/' + nextBasename, 'w+', function(err, fd){
+        if(err) throw new Error('NeplReader: Cannot rotating volume file');
+    });
+};
+
+NeplReader.incrementVol = function(curVolBasename){
+    var volCount = curVolBasename.substring(3).match(/[^0].*/i)[0];
+    console.log(volCount);
+    volCount = parseInt(volCount) + 1 + '';
+    for( var i = VOLCOUNT_LENGTH - volCount.length ; i > 0 ; i-- ){
+        volCount = '0' + volCount;
+    }
+    volCount = 'vol' + volCount;
+    return volCount;
+};
 
 
 NeplReader.prototype.initLogFiles = function(self, volume, meta, name){
@@ -85,12 +118,20 @@ NeplReader.prototype.initLogFiles = function(self, volume, meta, name){
                 if(err) throw new Error('NeplReader: Cannot find available volume file');
             });
         }
+        else{
+            // If transaction file is over 1MB, log rotate
+            fs.stat(volume, function(err, stats){
+                if( stats.size > MAX_VOL_SIZE ) {
+                    NeplReader.logRotate(volume);
+                }
+            });
+        }
     });
 
     fs.exists(meta, function(exists){
         var options = {};
         options.volumeName = name;
-        options.metaFile = __dirname + '/meta';
+        options.metaFile = self.meta;
         var wholeMt = new NeplWholeMeta(options);
         self.wholeMeta = wholeMt;
         self.txEntry = new NeplTXEntry(options);
