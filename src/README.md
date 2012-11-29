@@ -29,9 +29,8 @@ Step2. Create NeplReader
 
 	// Define reader configure
 	var config = {
-	    name = 'txReader',
-		volume = '/from/where/to/somewhere/txvol',
-		meta   = '/from/where/to/somewhere/meta',
+	    name : 'txReader',
+		targetVolume : '/from/where/to/somewhere/sampleTx',
 		consumer : cons
 	};
 
@@ -43,7 +42,7 @@ Step3. Start reader
 
     $ node reader.js
 
-If any transaction logs are written in /from/where/to/somewhere/txvol, 
+If any transaction logs are written in /from/where/to/somewhere/vol00001,
 this reader read these transactions and passes these to your consumer.
 You can access these transaction logs via NeplTX.
 NeplTX is an object like below.
@@ -72,7 +71,7 @@ Step 4. Create writer
 	
 	var ntx = new nepl.NeplTX();
 	tx.setPayload(payload);
-	tx.writeToVol('/from/where/to/somewhere/txvol');
+	tx.writeToVol('/from/where/to/somewhere/vol00001');
 ```
 
 ### Questions
