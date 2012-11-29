@@ -6,7 +6,8 @@ var NeplTXEntry = require('./NeplTXEntry.js');
 
 
 var VOLCOUNT_LENGTH = 5;
-var MAX_VOL_SIZE = 300;
+// Max volume size is 10MB
+var MAX_VOL_SIZE = 10000000;
 
 function NeplReader(options){
     var self = this;
