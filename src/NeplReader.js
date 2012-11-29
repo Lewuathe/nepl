@@ -6,7 +6,7 @@ var NeplTXEntry = require('./NeplTXEntry.js');
 
 
 var VOLCOUNT_LENGTH = 5;
-var MAX_VOL_SIZE = 100000000;
+var MAX_VOL_SIZE = 300;
 
 function NeplReader(options){
     var self = this;
@@ -46,12 +46,26 @@ NeplReader.prototype.doConsumer = function(curr,prev){
         var byteSum = parseInt(self.wholeMeta.ownMetas[self.name]['lastVolByteCnt']) + len;
         self.wholeMeta.ownMetas[self.name]['lastVolByteCnt'] = byteSum + '';
         self.wholeMeta.updateMeta(self.meta);
-                    // If transaction file is over 1MB, log rotate
+
+        // If transaction file is over 1MB, log rotate
         fs.stat(self.volume, function(err, stats){
             if( stats.size > MAX_VOL_SIZE ) {
                 NeplReader.logRotate(self.volume);
+
+                var curVol = self.wholeMeta.ownMetas[self.name]['lastVol'];
+                self.wholeMeta.ownMetas[self.name]['lastVol'] = parseInt(curVol) + 1 + '';
+                self.wholeMeta.ownMetas[self.name]['lastVolTxnCnt'] = '0';
+                self.wholeMeta.ownMetas[self.name]['lastVolByteCnt'] = '0';
+                fs.unwatchFile(self.volume);
+                var dirname = path.dirname(self.volume);
+                self.volume = dirname + '/' + NeplReader.incrementVol(path.basename(self.volume));
+                self.wholeMeta.updateMeta(self.meta);
+                fs.watchFile(self.volume, function(curr, prev){
+                    self.doConsumer(curr, prev);
+                });
             }
         });
+
     });
 };
 
@@ -101,7 +115,6 @@ NeplReader.logRotate = function(currentVolume){
 
 NeplReader.incrementVol = function(curVolBasename){
     var volCount = curVolBasename.substring(3).match(/[^0].*/i)[0];
-    console.log(volCount);
     volCount = parseInt(volCount) + 1 + '';
     for( var i = VOLCOUNT_LENGTH - volCount.length ; i > 0 ; i-- ){
         volCount = '0' + volCount;
@@ -166,7 +179,6 @@ NeplReader.prototype.initLogFiles = function(self, volume, meta, name){
                     // In this timing, wholemeta is completed
                     fs.watchFile(self.volume, function(curr, prev){
                         self.doConsumer(curr, prev);
-                        self.wholeMeta.updateMeta(self.meta);
                     });
                 });
             }
